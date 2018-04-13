@@ -31,6 +31,7 @@ func main() {
 	db := client.Database("test")
 	c := db.Collection("nice")
 
+	// Insert
 	s := struct {
 		Name   string
 		Family string
@@ -48,6 +49,7 @@ func main() {
 	}
 	fmt.Println(res.InsertedID)
 
+	// Create Index
 	indexName, err := c.Indexes().CreateOne(
 		context.Background(),
 		mgo.IndexModel{
@@ -64,6 +66,7 @@ func main() {
 	}
 	fmt.Println(indexName)
 
+	// Find
 	cur, err := c.Find(context.Background(), bson.NewDocument(
 		bson.EC.SubDocument("hello", bson.NewDocument(
 			bson.EC.Boolean("$exists", true),
@@ -72,8 +75,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	defer cur.Close(context.Background())
 
 	for cur.Next(context.Background()) {
 		elem := bson.NewDocument()
@@ -84,4 +85,30 @@ func main() {
 
 		fmt.Println(elem)
 	}
+	cur.Close(context.Background())
+
+	// Aggregate
+	cur, err = c.Aggregate(context.Background(), []*bson.Document{
+		bson.NewDocument(bson.EC.SubDocument("$match", bson.NewDocument(
+			bson.EC.String("name", "Parham"),
+		))),
+		bson.NewDocument(bson.EC.SubDocument("$sort", bson.NewDocument(
+			bson.EC.Int32("time", 1),
+		))),
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for cur.Next(context.Background()) {
+		elem := bson.NewDocument()
+
+		if err := cur.Decode(elem); err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(elem)
+	}
+	cur.Close(context.Background())
+
 }
