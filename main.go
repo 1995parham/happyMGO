@@ -51,4 +51,25 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(indexName)
+
+	cur, err := c.Find(context.Background(), bson.NewDocument(
+		bson.EC.SubDocument("hello", bson.NewDocument(
+			bson.EC.Boolean("$exists", true),
+		)),
+	))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer cur.Close(context.Background())
+
+	for cur.Next(context.Background()) {
+		elem := bson.NewDocument()
+
+		if err := cur.Decode(elem); err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(elem)
+	}
 }
