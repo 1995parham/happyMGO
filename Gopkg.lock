@@ -8,10 +8,10 @@
   version = "v1.7.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/mongodb/mongo-go-driver"
-  packages = ["bson","bson/builder","bson/decimal","bson/elements","bson/objectid","mongo","mongo/connstring","mongo/internal","mongo/internal/auth/gssapi","mongo/internal/feature","mongo/model","mongo/private/auth","mongo/private/cluster","mongo/private/conn","mongo/private/msg","mongo/private/ops","mongo/private/options","mongo/private/server","mongo/readconcern","mongo/readpref","mongo/writeconcern"]
-  revision = "4dccfa06a22dc6d6f77c9828e12c8ebb6ec502a4"
-  version = "v0.0.2"
+  packages = ["bson","bson/builder","bson/decimal","bson/elements","bson/objectid","core/addr","core/auth","core/auth/internal/gssapi","core/command","core/connection","core/connstring","core/description","core/dispatch","core/options","core/readconcern","core/readpref","core/result","core/tag","core/topology","core/version","core/wiremessage","core/writeconcern","internal","mongo"]
+  revision = "5f9341cb23fe6608ae6bcf558c606657c16b393e"
 
 [[projects]]
   branch = "master"
@@ -19,9 +19,21 @@
   packages = ["pbkdf2"]
   revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = ["context"]
+  revision = "61147c48b25b599e5b561d2e9c4f3e1ef489ca41"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sync"
+  packages = ["semaphore"]
+  revision = "1d60e4601c6fd243af51cc01ddf169918a5407ca"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f71cf3689ad1cea127caa157d1395a1fb5ba2e0efbdb8ab8cea4821ffa1d4d09"
+  inputs-digest = "4137e99044808543b070dee2c370c4bfb563756e52b6de8b42cd0e4981da6b39"
   solver-name = "gps-cdcl"
   solver-version = 1
