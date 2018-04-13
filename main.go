@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/mongodb/mongo-go-driver/bson"
 	mgo "github.com/mongodb/mongo-go-driver/mongo"
 )
 
@@ -34,4 +35,20 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(res.InsertedID)
+
+	indexName, err := c.Indexes().CreateOne(
+		context.Background(),
+		mgo.IndexModel{
+			Keys: bson.NewDocument(
+				bson.EC.Int32("foo", 1),
+			),
+			Options: bson.NewDocument(
+				bson.EC.Boolean("unique", true),
+			),
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(indexName)
 }
