@@ -52,7 +52,7 @@ func main() {
 		context.Background(),
 		mgo.IndexModel{
 			Keys: bson.NewDocument(
-				bson.EC.Int32("foo", 1),
+				bson.EC.Int32("time", 1),
 			),
 			Options: bson.NewDocument(
 				bson.EC.Boolean("unique", true),
