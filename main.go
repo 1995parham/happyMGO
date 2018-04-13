@@ -14,6 +14,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	mgo "github.com/mongodb/mongo-go-driver/mongo"
@@ -22,15 +23,26 @@ import (
 func main() {
 	fmt.Println("vim-go")
 
-	client, err := mgo.NewClient("mongodb://127.0.0.1")
+	client, err := mgo.NewClient("mongodb://127.0.0.1:27017")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	db := client.Database("test")
-	c := db.Collection("hello")
+	c := db.Collection("nice")
 
-	res, err := c.InsertOne(context.Background(), map[string]string{"hello": "world"})
+	s := struct {
+		Name   string
+		Family string
+		Time   time.Time
+	}{
+		Name:   "Parham",
+		Family: "Alvani",
+		Time:   time.Now(),
+	}
+	fmt.Println(s)
+
+	res, err := c.InsertOne(context.Background(), s)
 	if err != nil {
 		log.Fatal(err)
 	}
