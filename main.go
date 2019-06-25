@@ -14,6 +14,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -23,8 +24,13 @@ import (
 )
 
 func main() {
+	url := os.Getenv("DB_URL")
+	if url == "" {
+		url = "mongodb://127.0.0.1:27017"
+	}
+
 	// create mongodb connection
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
+	client, err := mongo.NewClient(options.Client().ApplyURI(url))
 	if err != nil {
 		log.Fatal(err)
 	}
