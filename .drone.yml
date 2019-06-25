@@ -1,0 +1,19 @@
+kind: pipeline
+name: default
+
+steps:
+  - name: lint
+    image: golang
+    commands:
+      - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
+      - golangci-lint run --enable-all
+  - name: test
+    image: golang
+    environment:
+      DB_URL: 'mongodb://database:27017'
+    commands:
+      - go run main.go
+
+services:
+  - name: database
+    image: mongo:latest
