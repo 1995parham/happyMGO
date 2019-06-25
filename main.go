@@ -16,16 +16,24 @@ import (
 	"log"
 	"time"
 
-	"github.com/mongodb/mongo-go-driver/bson"
-	mgo "github.com/mongodb/mongo-go-driver/mongo"
+	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-	fmt.Println("vim-go")
-
-	client, err := mgo.NewClient("mongodb://127.0.0.1:27017")
+	// create mongodb connection
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// connect to the mongodb
+	ctxc, donec := context.WithTimeout(context.Background(), 10*time.Second)
+	defer donec()
+	if err := client.Connect(ctxc); err != nil {
+		logrus.Fatalf("db connection error: %s", err)
 	}
 
 	db := client.Database("test")
@@ -52,13 +60,11 @@ func main() {
 	// Create Index
 	indexName, err := c.Indexes().CreateOne(
 		context.Background(),
-		mgo.IndexModel{
-			Keys: bson.NewDocument(
-				bson.EC.Int32("time", 1),
-			),
-			Options: bson.NewDocument(
-				bson.EC.Boolean("unique", true),
-			),
+		mongo.IndexModel{
+			Keys: bson.M{
+				"time": 1,
+			},
+			Options: options.Index().SetUnique(true),
 		},
 	)
 	if err != nil {
@@ -67,19 +73,19 @@ func main() {
 	fmt.Println(indexName)
 
 	// Find
-	cur, err := c.Find(context.Background(), bson.NewDocument(
-		bson.EC.SubDocument("hello", bson.NewDocument(
-			bson.EC.Boolean("$exists", true),
-		)),
-	))
+	cur, err := c.Find(context.Background(), bson.M{
+		"hello": bson.M{
+			"$exists": true,
+		},
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for cur.Next(context.Background()) {
-		elem := bson.NewDocument()
+		var elem bson.D
 
-		if err := cur.Decode(elem); err != nil {
+		if err := cur.Decode(&elem); err != nil {
 			log.Fatal(err)
 		}
 
@@ -88,27 +94,30 @@ func main() {
 	cur.Close(context.Background())
 
 	// Aggregate
-	cur, err = c.Aggregate(context.Background(), []*bson.Document{
-		bson.NewDocument(bson.EC.SubDocument("$match", bson.NewDocument(
-			bson.EC.String("name", "Parham"),
-		))),
-		bson.NewDocument(bson.EC.SubDocument("$sort", bson.NewDocument(
-			bson.EC.Int32("time", 1),
-		))),
+	cur, err = c.Aggregate(context.Background(), bson.A{
+		bson.M{
+			"$match": bson.M{
+				"name": "Parham",
+			},
+		},
+		bson.M{
+			"$sort": bson.M{
+				"time": 1,
+			},
+		},
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for cur.Next(context.Background()) {
-		elem := bson.NewDocument()
+		var elem bson.D
 
-		if err := cur.Decode(elem); err != nil {
+		if err := cur.Decode(&elem); err != nil {
 			log.Fatal(err)
 		}
 
 		fmt.Println(elem)
 	}
 	cur.Close(context.Background())
-
 }
